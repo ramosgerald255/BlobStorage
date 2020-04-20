@@ -18,7 +18,7 @@ Public Class Form1
     Dim doesBrowsing As Boolean = False
     Dim accountName As String = "mkprojectmanagement"
     Dim accessKey As String = "8Akkcxur0kMh6CIlHhQhzD0618VT1P4u1ZRDHx7hnzlZOpo0ZWmSXMFUtPfmn50brHYXAv+mGc2zUR5yL+elHQ=="
-
+    Public Connection As String = "DefaultEndpointsProtocol=https;AccountName=mkprojectmanagement;AccountKey=8Akkcxur0kMh6CIlHhQhzD0618VT1P4u1ZRDHx7hnzlZOpo0ZWmSXMFUtPfmn50brHYXAv+mGc2zUR5yL+elHQ==;EndpointSuffix=core.windows.net"
 
     Private Sub btnBrowse_Click(sender As Object, e As EventArgs) Handles btnBrowse.Click
         OpenFileDialog1.Filter = "Bitmap |*.bmp| JPG | *.jpg | GIF | *.gif | All Files|*.*"
@@ -66,17 +66,6 @@ Public Class Form1
             Dim container As CloudBlobContainer = blobClient.GetContainerReference(containerName)
             Dim blockBlob As CloudBlockBlob = container.GetBlockBlobReference(Path.GetFileName(filename).ToString)
 
-
-            'blockBlob.UploadFromFileAsync(filename)
-
-            'If blockBlob.Properties.Length >= 0 Then
-            '    Dim blobUrl As String = blockBlob.Uri.AbsoluteUri
-            '    MsgBox("Uploaded: " & blobUrl)
-
-            '    Dim blobs = blockBlob.Container.ListBlobs
-            '    MsgBox("Blobs: " & blobs.ToString)
-            '    Return True
-            'End If
             Using FileStream = System.IO.File.OpenRead(filename)
                 blockBlob.UploadFromStream(FileStream)
                 Return True
@@ -92,6 +81,12 @@ Public Class Form1
             MsgBox(ex.Message)
         End Try
     End Function
+
+    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
+        Form2.Show()
+    End Sub
+    '09096509014
+
 
 
 
