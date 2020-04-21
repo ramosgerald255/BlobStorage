@@ -11,6 +11,7 @@ Imports Microsoft.WindowsAzure.Storage.Auth
 Imports Microsoft.WindowsAzure.Storage.Blob
 Imports System.Configuration
 Imports System.Threading
+Imports Microsoft.WindowsAzure.Storage.Core.Util
 
 Public Class Form1
 
@@ -49,6 +50,9 @@ Public Class Form1
                 If Upload(txtPath.Text) = True Then
                     MsgBox("Uploaded Sucessfully")
                 End If
+                'Dim result = isUploaded(txtPath.Text).Result
+                'Console.WriteLine(result)
+                'Console.ReadLine()
         End Select
     End Sub
 
@@ -79,6 +83,36 @@ Public Class Form1
         Catch ex As Exception
             Return False
             MsgBox(ex.Message)
+        End Try
+    End Function
+
+    Public Async Function isUploaded(ByVal fileName As String) As Task(Of Boolean)
+        Try
+            Dim connectionString As String = "DefaultEndpointsProtocol=https;AccountName=mkprojectmanagement;AccountKey=8Akkcxur0kMh6CIlHhQhzD0618VT1P4u1ZRDHx7hnzlZOpo0ZWmSXMFUtPfmn50brHYXAv+mGc2zUR5yL+elHQ==;EndpointSuffix=core.windows.net"
+            Dim containerName As String = "uploads"
+            Dim storageAccount As CloudStorageAccount = CloudStorageAccount.Parse(connectionString)
+            Dim blobClient As CloudBlobClient = storageAccount.CreateCloudBlobClient()
+            Dim container As CloudBlobContainer = blobClient.GetContainerReference(containerName)
+            Dim blockBlob As CloudBlockBlob = container.GetBlockBlobReference(Path.GetFileName(fileName).ToString)
+            ' Define the function how to handle the infromation
+
+            Dim handelr As Action(Of StorageProgress) = Sub(progress) Console.WriteLine("Progress: {0} bytes transferred", progress.BytesTransferred)
+            Dim progressHandler As IProgress(Of StorageProgress) = New Progress(Of StorageProgress)(handelr)
+            Dim cancellationToken As CancellationToken = New CancellationToken()
+
+            Using FileStream = File.OpenRead(fileName)
+                Await blockBlob.UploadFromStreamAsync(FileStream,
+                                                       New AccessCondition(),
+                                                       New BlobRequestOptions(),
+                                                       New OperationContext(),
+                                                       progressHandler,
+                                                       cancellationToken)
+                Return True
+            End Using
+        Catch ex As Exception
+            Return False
+            MsgBox(ex.Message)
+
         End Try
     End Function
 
